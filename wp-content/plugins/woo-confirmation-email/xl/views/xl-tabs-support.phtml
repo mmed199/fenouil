@@ -1,0 +1,195 @@
+<?php if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+} // Exit if accessed directly               ?>
+
+<style type="text/css">
+    .xl_dashboard_tab_content #support-request {
+        margin-left: 10px;
+    }
+</style>
+<div class="xl_plugins_wrap">
+    <h1><?php _e( 'Request Support', 'xlplugins' ); ?></h1>
+	<?php if ( $model ) { ?>
+    <div class="wp-filter">
+        <ul class="filter-links xl_plugins_license_links">
+			<?php
+			$licenses = XL_licenses::get_instance();
+			$licenses->get_plugins_list();
+			if ( ! empty( $licenses->plugins_list ) ) {
+				?>
+                <li class="plugin-install-featured <?php echo ( isset( $model->current_tab ) && $model->current_tab == 'licenses' ) ? 'current' : ''; ?>">
+                    <a href="<?php echo admin_url( 'admin.php?page=' . $_GET['page'] . '&tab=licenses' ); ?>"><?php _e( 'Licenses', 'xlplugins' ); ?></a>
+                </li>
+			<?php } ?>
+            <li class="plugin-install-popular <?php echo ( isset( $model->current_tab ) && $model->current_tab == 'support' ) ? 'current' : ''; ?>">
+                <a href="<?php echo admin_url( 'admin.php?page=' . $_GET['page'] . '&tab=support' ); ?>"
+                   class=""><?php _e( 'Support', 'xlplugins' ); ?></a></li>
+			<?php if ( isset( $model->additional_tabs ) && is_array( $model->additional_tabs ) && count( $model->additional_tabs ) > 0 ): ?>
+				<?php foreach ( $model->additional_tabs as $tab ): ?>
+                    <li class="<?php echo ( isset( $model->current_tab ) && $model->current_tab == $tab['slug'] ) ? "current" : "" ?>">
+                        <a href="<?php echo admin_url( 'admin.php?page=' . $_GET['page'] . '&tab=' . $tab['slug'] ) ?>"><?php echo $tab['label']; ?></a>
+                    </li>
+				<?php endforeach; ?>
+			<?php endif; ?>
+        </ul>
+    </div>
+    <br class="clear">
+    <div id="col-container" class="about-wrap">
+        <div class="xl_dashboard_tab_content" id="support">
+            <div id="support-request">
+				<?php
+				$support = XL_Support::get_instance();
+				if ( $support->is_submitted === null ) {
+					$doc_link     = add_query_arg( array(
+						'utm_source'   => 'xl-tools',
+						'utm_campaign' => 'xl-support',
+						'utm_medium'   => 'support-tab',
+						'utm_term'     => 'documentation',
+					), 'https://xlplugins.com/documentation/' );
+					$support_link = add_query_arg( array(
+						'utm_source'   => 'xl-tools',
+						'utm_campaign' => 'xl-support',
+						'utm_medium'   => 'support-tab',
+						'utm_term'     => 'support',
+					), 'https://xlplugins.com/support/' );
+					$contact_link = add_query_arg( array(
+						'utm_source'   => 'xl-tools',
+						'utm_campaign' => 'xl-support',
+						'utm_medium'   => 'support-tab',
+						'utm_term'     => 'contact',
+					), 'https://xlplugins.com/contact/' );
+					echo __( '<p>Do you need support? We are happy to help :)</p><p> Please go through extensive documentation', 'xlplugins' ) . ' <a target="_blank" href="' . $doc_link . '">https://xlplugins.com/documentation/</a>.</p>';
+					echo __( '<p>If you are unable to find the answers, feel free to', 'xlplugins' ) . ' <a target="_blank" href="' . $support_link . '">Raise the Ticket</a>.</p>';
+					echo __( '<p>For any pre-sales questions, please fill out the', 'xlplugins' ) . ' <a target="_blank" href="' . $contact_link . '">Contact Form</a>.</p>';
+				} elseif ( $support->is_submitted === false ) {
+					?>
+                    <form method="post" _lpchecked="1" enctype="multipart/form-data">
+                        <input type="hidden" id="nonce" name="nonce"
+                               value="<?php echo wp_create_nonce( 'xl_send_support_request' ); ?>">
+                        <input type="hidden" name="action" value="xl_send_support_request">
+                        <input type="hidden" name="license_info"
+                               value="<?php echo esc_attr( json_encode( $model->licenses ) ); ?>">
+                        <input type="hidden" name="plugins_info"
+                               value="<?php echo esc_attr( json_encode( $model->installed ) ); ?>">
+                        <table class="form-table">
+                            <tbody>
+                            <tr>
+                                <th>
+                                    <label class="inline-label" for="email">Choose Support Type*</label>
+                                </th>
+                                <td>
+                                    <div class="radioBtns">
+											<span>
+												<input type="radio" checked name="report_type" value="Technical Support" id="xl_tab_pr"> <label
+                                                        class="inline-label radio" for="xl_tab_pr">Technical Support</label>
+											</span> <span>
+												<input type="radio" name="report_type" value="Suggestion" id="xl_tab_sug"> <label
+                                                    class="inline-label radio" for="xl_tab_sug">Suggestion</label>   </span>
+                                        <span>   <input type="radio" name="report_type" value="Feature Request" id="xl_tab_q"> <label
+                                                    class="inline-label radio" for="xl_tab_q">Feature Request</label> </span>
+                                    </div>
+
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th><label class="inline-label" for="choose_addon">Choose Add-on*</label></th>
+                                <td>
+                                    <select name="choose_addon" id="choose_addon" required="">
+                                        <option value="">----Select----</option>
+										<?php
+										foreach ( $model->installed as $key => $plugin ) {
+
+											?>
+                                            <option value="<?php echo $key; ?>" data-tools="<?php echo( $plugin["XLTOOLS"] == 'True' ? '1' : '0' ) ?>"><?php echo $plugin['Name']; ?></option>
+											<?php
+										}
+										?>
+
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th><label class="inline-label" for="name">Name*</label></th>
+                                <td><input type="text" name="name" id="name" required></td>
+                            </tr>
+                            <tr>
+                                <th><label class="inline-label" for="email">Email Address*</label></th>
+                                <td><input type="email" name="email" id="email" value="<?php echo get_bloginfo( 'admin_email' ); ?>" required>
+                                    <p class="description" id="tagline-description">Please provide a valid email so that our team can contact you further.</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th><label class="inline-label" for="website-address">Website*</label></th>
+                                <td>
+                                    <input type="text" name="website-address" id="website-address"
+                                           value="<?php echo site_url(); ?>" readonly="readonly">
+                                </td>
+                            </tr>
+                            <tr class="xl_system_info">
+                                <th>
+                                    <label for="system_info">System Info*</label>
+                                </th>
+                                <td>
+										<textarea name="system_info_show" id="system_info"
+                                                  disabled="disabled"><?php echo $model->system_info; ?></textarea>
+                                    <input type="hidden" name="system_info" value="<?php echo esc_attr( $model->system_info ); ?>">
+                                    <input type="hidden" name="xl_system_info_url" class="xl_system_info_url">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th><label for="comments">Comments*</label></th>
+                                <td>
+                                    <textarea name="comments" id="comments" placeholder="Enter as much detail about the problem as you can." required></textarea>
+                                    <p class="description" id="tagline-description">Please describe your issues/questions in detail. Also provide screenshots to demonstrate the issue.
+                                        quickly. </p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th><label for="comments">Reference Links</label></th>
+                                <td>
+                                    <textarea name="screenshots" id="screenshots" placeholder="Paste the links of the screenshots(s)"></textarea>
+                                    <p class="description" id="tagline-description">Provide links where the issue can be seen.</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th><label for="comments">Upload System Files</label></th>
+                                <td>
+                                    <input type="file" name="xl_required_files[]" multiple>
+
+
+                                    <!--									<p class="description" id="tagline-description"> Go to XLPlugins > Tools & Download System Files and upload here.</p>-->
+                                    <p class="description"><strong>What are the System Files?</strong> <br/>System Files help us see the exact settings you have configured.<br/> <br/> <strong>Where to
+                                            find them?</strong> <br/> Go to <a href="<?php echo admin_url( 'admin.php?page=xlplugins&tab=tools' ) . ''; ?>" target="_blank">XLPlugins > Tools </a> &
+                                        Download System Files and upload here.</p>
+                                </td>
+                            </tr>
+
+                            </tbody>
+                        </table>
+
+						<?php do_action( 'xl_add_content_support_form' ); ?>
+                        <p><input class="button-primary gfbutton" type="submit" id="support-request-button"
+                                  name="xl_submit_support"
+                                  value="Request Support"><span style="display: inherit; font-size: 13px; font-style: italic; margin-top: 5px;
+								  ">All Fields marked as * are required.</span></p>
+
+                    </form> <?php
+
+				} elseif ( $support->is_submitted === true ) {
+					_e( '<p> Your Support Request has been submitted successfully. We will contact you shortly. Thank You!</p>', 'xlplugins' );
+				} else {
+					_e( '<p> Unable to submit your request at this moment. Please <a href="' . admin_url( 'admin.php?page=xlplugins&tab=support' ) . '" >Try Again</a>.</p>', 'xlplugins' );
+				}
+
+				?>
+            </div>
+			<?php do_action( 'xl_support_after_content' ); ?>
+        </div>
+
+        <div class="xl-area-right"> <?php do_action( 'xl_support_right_area' ); ?> </div>
+		<?php } else { ?>
+            <div
+                    class="xl_cannot_connect"> <?php echo apply_filters( 'xl_no_data_support', __( 'Could not connect to server.', 'xlplugins' ) ); ?></div><?php } ?>
+    </div>
+

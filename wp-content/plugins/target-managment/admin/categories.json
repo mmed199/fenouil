@@ -1,0 +1,22 @@
+[
+    {
+        "id":1,
+        "name":"Student"
+    },
+    {
+        "id":2,
+        "name":"Higher occupations"
+    },
+    {
+        "id":3,
+        "name":"Intermediate occupations"
+    },
+    {
+        "id":4,
+        "name":"Lower occupations"
+    },
+    {
+        "id":5,
+        "name":"Other"
+    }
+]

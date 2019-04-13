@@ -1,0 +1,11 @@
+2019-04-04T20:48:39+00:00 CRITICAL Uncaught Error: Call to undefined function acf_form_head() in /home/fenoadss/public_html/wp-content/plugins/acf-for-woocommerce/includes/locations/class-acf-woocommerce-base-location.php:76
+Stack trace:
+#0 /home/fenoadss/public_html/wp-includes/class-wp-hook.php(286): ACF_Woo_Base_Location->load_acf_form_head('')
+#1 /home/fenoadss/public_html/wp-includes/class-wp-hook.php(310): WP_Hook->apply_filters(NULL, Array)
+#2 /home/fenoadss/public_html/wp-includes/plugin.php(465): WP_Hook->do_action(Array)
+#3 /home/fenoadss/public_html/wp-includes/template-loader.php(13): do_action('template_redire...')
+#4 /home/fenoadss/public_html/wp-blog-header.php(19): require_once('/home/fenoadss/...')
+#5 /home/fenoadss/public_html/index.php(17): require('/home/fenoadss/...')
+#6 {main}
+  thrown in /home/fenoadss/public_html/wp-content/plugins/acf-for-woocommerce/includes/locations/class-acf-woocommerce-base-location.php on line 76
+
